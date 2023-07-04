@@ -1,0 +1,37 @@
+# output dir
+/data
+/datasets
+*.so.*
+*.tar.gz
+*.egg-info*
+
+*.ttf
+*.jpg
+*.png
+__pycache__
+_ext
+*.pyc
+*.so
+build/
+dist/
+
+# pytorch/python/numpy formats
+*.pth
+*.pkl
+*.npy
+*.engine
+*.onnx
+events.out.tfevents*
+
+# ipython/jupyter notebooks
+*.ipynb
+**/.ipynb_checkpoints/
+
+# Editor temporaries
+*.swn
+*.swo
+*.swp
+*~
+
+# VSCode editor settings
+.vscode
