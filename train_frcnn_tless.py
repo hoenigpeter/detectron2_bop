@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./output_model"
+    output_dir = "./frcnn_tless_model"
     os.makedirs(output_dir, exist_ok=True)
 
     # Create a Detectron2 config

@@ -12,24 +12,24 @@ from detectron2.model_zoo import model_zoo
 from configs.tless_pbr import register_with_name_cfg
 
 if __name__ == "__main__":
-    from configs.tless_random_texture_pbr import register_with_name_cfg
-    register_with_name_cfg("tless_random_texture_pbr_train")
-    from configs.tless_bop_test import register_with_name_cfg
-    register_with_name_cfg("tless_bop_test_primesense")
+    from configs.lm_random_texture_all_pbr import register_with_name_cfg
+    register_with_name_cfg("lm_random_texture_all_pbr_train")
+    from configs.lm_bop_test import register_with_name_cfg
+    register_with_name_cfg("lm_bop_test")
 
     print("dataset catalog: ", DatasetCatalog.list())
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_tless_random_model"
+    output_dir = "./frcnn_lm_random_model"
     os.makedirs(output_dir, exist_ok=True)
 
     # Create a Detectron2 config
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 
-    cfg.DATASETS.TRAIN = ("tless_random_texture_pbr_train",)
-    cfg.DATASETS.TEST = ("tless_bop_test_primesense",)
+    cfg.DATASETS.TRAIN = ("lm_random_texture_all_pbr_train",)
+    cfg.DATASETS.TEST = ("lm_bop_test",)
     cfg.DATALOADER.NUM_WORKERS = 4  # Adjust according to your system setup
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")  # Pretrained weights
     cfg.SOLVER.IMS_PER_BATCH = 4
