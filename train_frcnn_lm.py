@@ -35,14 +35,14 @@ if __name__ == "__main__":
     cfg.SOLVER.IMS_PER_BATCH = 4
     cfg.SOLVER.BASE_LR = 0.00025
 
-    epochs = 30 
+    epochs = 1 
 
     single_iteration = 1 * cfg.SOLVER.IMS_PER_BATCH
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
 
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 30  # Adjust according to your dataset
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 15  # Adjust according to your dataset
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints

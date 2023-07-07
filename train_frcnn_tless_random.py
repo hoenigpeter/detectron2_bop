@@ -35,7 +35,7 @@ if __name__ == "__main__":
     cfg.SOLVER.IMS_PER_BATCH = 4
     cfg.SOLVER.BASE_LR = 0.00025
 
-    epochs = 30 
+    epochs = 5 
 
     single_iteration = 1 * cfg.SOLVER.IMS_PER_BATCH
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
-    cfg.SOLVER.CHECKPOINT_PERIOD = 1000  # Save a checkpoint every 100 iterations
+    cfg.SOLVER.CHECKPOINT_PERIOD = 5000  # Save a checkpoint every 100 iterations
 
     # Create the trainer and start training
     trainer = DefaultTrainer(cfg)
