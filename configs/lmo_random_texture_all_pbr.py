@@ -13,7 +13,7 @@ from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.structures import BoxMode
 
 cur_dir = osp.dirname(osp.abspath(__file__))
-PROJ_ROOT = osp.normpath(osp.join(cur_dir, "../../../.."))
+PROJ_ROOT = osp.normpath(osp.join(cur_dir, ".."))
 sys.path.insert(0, PROJ_ROOT)
 
 import ref
