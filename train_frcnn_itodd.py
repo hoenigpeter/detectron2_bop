@@ -12,24 +12,24 @@ from detectron2.model_zoo import model_zoo
 from configs.tless_pbr import register_with_name_cfg
 
 if __name__ == "__main__":
-    from configs.lm_pbr import register_with_name_cfg
-    register_with_name_cfg("lmo_pbr_train")
-    from configs.lmo_bop_test import register_with_name_cfg
-    register_with_name_cfg("lmo_bop_test")
+    from configs.itodd_pbr import register_with_name_cfg
+    register_with_name_cfg("itodd_pbr_train")
+    from configs.itodd_bop_test import register_with_name_cfg
+    register_with_name_cfg("itodd_bop_test")
 
     print("dataset catalog: ", DatasetCatalog.list())
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_lmo_model"
+    output_dir = "./frcnn_itodd_model"
     os.makedirs(output_dir, exist_ok=True)
 
     # Create a Detectron2 config
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 
-    cfg.DATASETS.TRAIN = ("lmo_pbr_train",)
-    cfg.DATASETS.TEST = ("lmo_bop_test",)
+    cfg.DATASETS.TRAIN = ("itodd_pbr_train",)
+    cfg.DATASETS.TEST = ("itodd_bop_test",)
     cfg.DATALOADER.NUM_WORKERS = 4  # Adjust according to your system setup
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")  # Pretrained weights
     cfg.SOLVER.IMS_PER_BATCH = 4
@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 8  # Adjust according to your dataset
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 28  # Adjust according to your dataset
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
