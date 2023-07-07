@@ -28,7 +28,7 @@ if __name__ == "__main__":
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
 
-    cfg.DATASETS.TRAIN = ("lm_pbr_train",)
+    cfg.DATASETS.TRAIN = ("lmo_pbr_train",)
     cfg.DATASETS.TEST = ("lmo_bop_test",)
     cfg.DATALOADER.NUM_WORKERS = 4  # Adjust according to your system setup
     cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")  # Pretrained weights
