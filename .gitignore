@@ -7,6 +7,8 @@
 
 *.json
 
+last_checkpoint
+
 *.ttf
 *.jpg
 *.png
