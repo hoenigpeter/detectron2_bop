@@ -5,6 +5,8 @@
 *.tar.gz
 *.egg-info*
 
+*.json
+
 *.ttf
 *.jpg
 *.png
