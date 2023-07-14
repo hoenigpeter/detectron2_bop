@@ -26,12 +26,12 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/fcos_R_50_FPN_1x.yaml"))  # Use FCOS config
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/fcos_R_50_FPN_1x.py"))  # Use FCOS config fcos_R_50_FPN_1x.py
 
     cfg.DATASETS.TRAIN = ("tless_pbr_train",)
     cfg.DATASETS.TEST = ("tless_bop_test_primesense",)
     cfg.DATALOADER.NUM_WORKERS = 4  # Adjust according to your system setup
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/fcos_R_50_FPN_1x.yaml")  # Pretrained weights
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/fcos_R_50_FPN_1x.py")  # Pretrained weights
     cfg.SOLVER.IMS_PER_BATCH = 4
     cfg.SOLVER.BASE_LR = 0.02
 
