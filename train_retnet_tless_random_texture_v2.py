@@ -10,34 +10,33 @@ from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
 from detectron2.model_zoo import model_zoo
 
 if __name__ == "__main__":
-    register_coco_instances("tless_pbr_train", {}, "datasets/tless/tless_annotations_train.json", "datasets/tless/train_pbr")
+    register_coco_instances("tless_random_texture_pbr_train", {}, "datasets/tless_random_texture/tless_random_texture_annotations_train.json", "datasets/tless_random_texture/train_pbr")
     register_coco_instances("tless_bop_test_primesense", {}, "datasets/tless/tless_annotations_test.json", "datasets/tless/test_primesense")
     print("dataset catalog: ", DatasetCatalog.list())
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_tless_model"
+    output_dir = "./retinanet_tless_random_texture_model"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Create a Detectron2 config
+    # Create a Detectron2 config for RetinaNet
     cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
 
-    cfg.DATASETS.TRAIN = ("tless_pbr_train",)
+    cfg.DATASETS.TRAIN = ("tless_random_texture_pbr_train",)
     cfg.DATASETS.TEST = ("tless_bop_test_primesense",)
     cfg.DATALOADER.NUM_WORKERS = 4  # Adjust according to your system setup
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")  # Pretrained weights
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/retinanet_R_50_FPN_3x.yaml")  # Pretrained weights
     cfg.SOLVER.IMS_PER_BATCH = 4
     cfg.SOLVER.BASE_LR = 0.00025
 
     epochs = 30 
 
     single_iteration = 1 * cfg.SOLVER.IMS_PER_BATCH
-    iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
+    iterations_for_one_epoch = 50000 / single_iteration
 
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 30  # Adjust according to your dataset
+    cfg.MODEL.RETINANET.NUM_CLASSES = 30  # Adjust according to your dataset
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
@@ -47,4 +46,3 @@ if __name__ == "__main__":
     trainer = DefaultTrainer(cfg)
     trainer.resume_or_load(resume=False)
     trainer.train()
-

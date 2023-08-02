@@ -123,13 +123,12 @@ def main(args):
 
     cfg.model.roi_heads.num_classes = 30
 
-    epochs = 10 
+    epochs = 30 
 
-    #single_iteration = 1 * cfg.dataloader.train.total_batch_size
-    #iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
+    single_iteration = 1 * cfg.dataloader.train.total_batch_size
+    iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
 
-    #cfg.train.max_iter = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements   
-    #assert cfg.SOLVER.IMS_PER_BATCH == 4
+    cfg.train.max_iter = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements   
 
     default_setup(cfg, args)
 
