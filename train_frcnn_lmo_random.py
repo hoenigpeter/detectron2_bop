@@ -33,7 +33,7 @@ if __name__ == "__main__":
     cfg.SOLVER.IMS_PER_BATCH = 4
     cfg.SOLVER.BASE_LR = 0.00025
 
-    epochs = 15
+    epochs = 30
 
     single_iteration = 1 * cfg.SOLVER.IMS_PER_BATCH
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration

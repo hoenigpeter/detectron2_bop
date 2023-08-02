@@ -11,7 +11,7 @@ from detectron2.model_zoo import model_zoo
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader
 
-from configs.tless_pbr import register_with_name_cfg
+from evaluators.bop_evaluator import BOPEvaluator
 
 if __name__ == "__main__":
     from configs.lm_bop_test import register_with_name_cfg
@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_lm_random_texture_all_model"
+    output_dir = "./frcnn_lm_model"
     model_path = output_dir + "/model_final.pth"
 
     cfg.MODEL.WEIGHTS = model_path
@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     predictor = DefaultPredictor(cfg)
     # Evaluate the model on the lm_bop_test dataset
-    evaluator = COCOEvaluator("lm_bop_test", cfg, False, output_dir=output_dir)
+    #evaluator = BOPEvaluator("lm_bop_test", cfg, False, output_dir=output_dir)
+    evaluator = BOPEvaluator("lm_bop_test", cfg, False, output_dir=output_dir)
     val_loader = build_detection_test_loader(cfg, "lm_bop_test")
     metrics = inference_on_dataset(predictor.model, val_loader, evaluator)
     print(metrics)

@@ -38,7 +38,7 @@ if __name__ == "__main__":
     dataset_dicts = DatasetCatalog.get("tless_bop_test_primesense")
 
     # Evaluate the model on the lm_bop_test dataset
-    evaluator = BOPEvaluator("tless_bop_test_primesense", cfg, False, output_dir=output_dir)
+    evaluator = COCOEvaluator("tless_bop_test_primesense", cfg, False, output_dir=output_dir)
     val_loader = build_detection_test_loader(cfg, "tless_bop_test_primesense")
     metrics = inference_on_dataset(predictor.model, val_loader, evaluator)
     print(metrics)
