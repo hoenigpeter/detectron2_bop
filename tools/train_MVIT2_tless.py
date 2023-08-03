@@ -36,6 +36,8 @@ logger = logging.getLogger("detectron2")
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
+import os
+
 def do_test(cfg, model):
     if "evaluator" in cfg.dataloader:
         ret = inference_on_dataset(
@@ -117,13 +119,17 @@ def main(args):
     register_coco_instances("tless_bop_test_primesense", {}, "datasets/tless/tless_annotations_test.json", "datasets/tless/test_primesense")
     print("dataset catalog: ", DatasetCatalog.list())
 
+    output_dir = "./mvit2_tless_output"
+    os.makedirs(output_dir, exist_ok=True)
+
     cfg.dataloader.train.dataset.names = "tless_pbr_train"
     cfg.dataloader.test.dataset.names = "tless_bop_test_primesense"
     cfg.dataloader.train.total_batch_size = 4
 
     cfg.model.roi_heads.num_classes = 30
+    cfg.OUTPUT_DIR = output_dir
 
-    epochs = 30 
+    epochs = 10 
 
     single_iteration = 1 * cfg.dataloader.train.total_batch_size
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
