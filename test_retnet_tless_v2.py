@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
