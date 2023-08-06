@@ -116,14 +116,14 @@ def main(args):
     print(cfg)
     #LazyConfig.save(cfg, "tmp.yaml")
     register_coco_instances("itodd_pbr_train", {}, "datasets/itodd/itodd_annotations_train.json", "datasets/itodd/train_pbr")
-    register_coco_instances("itodd_bop_test", {}, "datasets/itodd/itodd_annotations_test.json", "datasets/itodd/test_primesense")
+    #register_coco_instances("itodd_bop_test", {}, "datasets/itodd/itodd_annotations_test.json", "datasets/itodd/test_primesense")
     print("dataset catalog: ", DatasetCatalog.list())
 
     output_dir = "./mvit2_itodd_output"
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_pbr_train"
-    cfg.dataloader.test.dataset.names = "itodd_bop_test"
+    #cfg.dataloader.test.dataset.names = "itodd_bop_test"
     cfg.dataloader.train.total_batch_size = 4
 
     cfg.model.roi_heads.num_classes = 28
@@ -135,6 +135,8 @@ def main(args):
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
 
     cfg.train.max_iter = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements   
+
+    cfg.train.output_dir = output_dir
 
     default_setup(cfg, args)
 
