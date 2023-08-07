@@ -123,11 +123,13 @@ def main(args):
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_pbr_train"
-    cfg.dataloader.test.dataset.names = None
+    cfg.dataloader.test.dataset.names = "itodd_pbr_train"
     cfg.dataloader.train.total_batch_size = 4
 
     cfg.model.roi_heads.num_classes = 28
     cfg.OUTPUT_DIR = output_dir
+
+    cfg.train.eval_period = 1000000
 
     epochs = 10 
 
