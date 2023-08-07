@@ -123,7 +123,7 @@ def main(args):
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_pbr_train"
-    #cfg.dataloader.test.dataset.names = "itodd_bop_test"
+    cfg.dataloader.test.dataset.names = None
     cfg.dataloader.train.total_batch_size = 4
 
     cfg.model.roi_heads.num_classes = 28
