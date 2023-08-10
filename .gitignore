@@ -41,3 +41,4 @@ events.out.tfevents*
 .vscode
 
 *.zip
+*.lock

@@ -119,7 +119,7 @@ def main(args):
     #register_coco_instances("itodd_bop_test", {}, "datasets/itodd/itodd_annotations_test.json", "datasets/itodd/test_primesense")
     print("dataset catalog: ", DatasetCatalog.list())
 
-    output_dir = "./mvit2_itodd_output"
+    output_dir = "./mvit2_itodd_random_texture_output"
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_random_texture_pbr_train"
