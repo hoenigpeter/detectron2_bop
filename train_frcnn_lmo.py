@@ -8,9 +8,10 @@ from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
 from detectron2.model_zoo import model_zoo
-
+import detectron2.data.transforms as T
+from detectron2.data import DatasetMapper, build_detection_train_loader
 from configs.tless_pbr import register_with_name_cfg
-
+    
 if __name__ == "__main__":
     from configs.lm_pbr import register_with_name_cfg
     register_with_name_cfg("lmo_pbr_train")

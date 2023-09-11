@@ -1,8 +1,9 @@
+OUTPUT_DIR: ./mvit2_itodd_output
 dataloader:
   evaluator: {_target_: detectron2.evaluation.COCOEvaluator, dataset_name: '${..test.dataset.names}'}
   test:
     _target_: detectron2.data.build_detection_test_loader
-    dataset: {_target_: detectron2.data.get_detection_dataset_dicts, filter_empty: false, names: tless_bop_test_primesense}
+    dataset: {_target_: detectron2.data.get_detection_dataset_dicts, filter_empty: false, names: itodd_random_texture_pbr_train}
     mapper:
       _target_: detectron2.data.DatasetMapper
       augmentations:
@@ -12,7 +13,7 @@ dataloader:
     num_workers: 4
   train:
     _target_: detectron2.data.build_detection_train_loader
-    dataset: {_target_: detectron2.data.get_detection_dataset_dicts, names: tless_pbr_train}
+    dataset: {_target_: detectron2.data.get_detection_dataset_dicts, names: itodd_random_texture_pbr_train}
     mapper:
       _target_: detectron2.data.DatasetMapper
       augmentations:
@@ -109,17 +110,17 @@ model:
     box_heads:
     - _target_: detectron2.modeling.roi_heads.FastRCNNConvFCHead
       conv_dims: [256, 256, 256, 256]
-      conv_norm: !!python/name:detectron2._cfg_loader9237.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
+      conv_norm: !!python/name:detectron2._cfg_loaderfc2f.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
       fc_dims: [1024]
       input_shape: !!python/object:detectron2.layers.shape_spec.ShapeSpec {channels: 256, height: 7, stride: null, width: 7}
     - _target_: detectron2.modeling.roi_heads.FastRCNNConvFCHead
       conv_dims: [256, 256, 256, 256]
-      conv_norm: !!python/name:detectron2._cfg_loader9237.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
+      conv_norm: !!python/name:detectron2._cfg_loaderfc2f.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
       fc_dims: [1024]
       input_shape: !!python/object:detectron2.layers.shape_spec.ShapeSpec {channels: 256, height: 7, stride: null, width: 7}
     - _target_: detectron2.modeling.roi_heads.FastRCNNConvFCHead
       conv_dims: [256, 256, 256, 256]
-      conv_norm: !!python/name:detectron2._cfg_loader9237.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
+      conv_norm: !!python/name:detectron2._cfg_loaderfc2f.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
       fc_dims: [1024]
       input_shape: !!python/object:detectron2.layers.shape_spec.ShapeSpec {channels: 256, height: 7, stride: null, width: 7}
     box_in_features: [p2, p3, p4, p5]
@@ -157,7 +158,7 @@ model:
     mask_head:
       _target_: detectron2.modeling.roi_heads.MaskRCNNConvUpsampleHead
       conv_dims: [256, 256, 256, 256, 256]
-      conv_norm: !!python/name:detectron2._cfg_loader9237.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
+      conv_norm: !!python/name:detectron2._cfg_loaderfc2f.cascade_mask_rcnn_mvitv2_t_3x.py.%3Clambda%3E ''
       input_shape: !!python/object:detectron2.layers.shape_spec.ShapeSpec {channels: 256, height: 14, stride: null, width: 14}
       num_classes: ${..num_classes}
     mask_in_features: [p2, p3, p4, p5]
@@ -167,7 +168,7 @@ model:
       pooler_type: ROIAlignV2
       sampling_ratio: 0
       scales: [0.25, 0.125, 0.0625, 0.03125]
-    num_classes: 30
+    num_classes: 28
     positive_fraction: 0.25
     proposal_matchers:
     - _target_: detectron2.modeling.matcher.Matcher
@@ -200,8 +201,8 @@ train:
   checkpointer: {max_to_keep: 100, period: 5000}
   ddp: {broadcast_buffers: false, find_unused_parameters: false, fp16_compression: true}
   device: cuda
-  eval_period: 5000
-  init_checkpoint: output/model_0029999.pth
+  eval_period: 1000000
+  init_checkpoint: detectron2://ImageNetPretrained/mvitv2/MViTv2_S_in1k.pyth
   log_period: 20
-  max_iter: 67500
-  output_dir: ./output
+  max_iter: 125000
+  output_dir: ./mvit2_itodd_output

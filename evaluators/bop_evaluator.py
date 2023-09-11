@@ -11,8 +11,6 @@ from detectron2.model_zoo import model_zoo
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader
 from detectron2.structures import Boxes, BoxMode, pairwise_iou
-
-from configs.tless_pbr import register_with_name_cfg
 import json
 
 class BOPEvaluator(COCOEvaluator):
@@ -62,7 +60,8 @@ class BOPEvaluator(COCOEvaluator):
         scores = instances.scores.tolist()
         classes = instances.pred_classes.tolist()
 
-        has_mask = instances.has("pred_masks")
+        #has_mask = instances.has("pred_masks")
+        has_mask = False
         if has_mask:
             # Use RLE to encode the masks, because they are too large and take memory
             # since this evaluator stores outputs of the entire dataset

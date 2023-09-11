@@ -117,13 +117,15 @@ def main(args):
     #LazyConfig.save(cfg, "tmp.yaml")
     register_coco_instances("itodd_pbr_train", {}, "datasets/itodd/itodd_annotations_train.json", "datasets/itodd/train_pbr")
     #register_coco_instances("itodd_bop_test", {}, "datasets/itodd/itodd_annotations_test.json", "datasets/itodd/test_primesense")
+    from configs.itodd_bop_test import register_with_name_cfg
+    register_with_name_cfg("itodd_bop_test")
     print("dataset catalog: ", DatasetCatalog.list())
 
     output_dir = "./mvit2_itodd_output"
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_pbr_train"
-    cfg.dataloader.test.dataset.names = "itodd_pbr_train"
+    cfg.dataloader.test.dataset.names = "itodd_bop_test"
     cfg.dataloader.train.total_batch_size = 4
 
     cfg.model.roi_heads.num_classes = 28

@@ -25,10 +25,10 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_lmo_random_texture_all_model"
+    output_dir = "./frcnn_lmo_random_texture_all_model_with_aug"
     model_path = output_dir + "/model_final.pth"
     cfg.MODEL.WEIGHTS = model_path
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # Set the desired threshold for detection
+    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01  # Set the desired threshold for detection
     cfg.MODEL.ROI_HEADS.NUM_CLASSES = 8  # Adjust according to your dataset
 
     metadata = MetadataCatalog.get("lmo_bop_test")

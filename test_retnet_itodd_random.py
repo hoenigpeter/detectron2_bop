@@ -10,9 +10,8 @@ from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
 from detectron2.model_zoo import model_zoo
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader
-from detectron2.structures import Boxes, BoxMode, pairwise_iou
-import json
-
+from detectron2.utils.visualizer import Visualizer
+import cv2
 from evaluators.bop_evaluator import BOPEvaluator
 
 if __name__ == "__main__":
@@ -23,15 +22,15 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_itodd_model"
+    output_dir = "./retinanet_itodd_random_texture_model"
     model_path = output_dir + "/model_final.pth"
     cfg.MODEL.WEIGHTS = model_path
-    cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # Set the desired threshold for detection
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 28  # Adjust according to your dataset
+    #cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01  # Set the desired threshold for detection
+    cfg.MODEL.RETINANET.NUM_CLASSES = 28  # Adjust according to your dataset
 
     predictor = DefaultPredictor(cfg)
     metadata = MetadataCatalog.get("itodd_bop_test")
