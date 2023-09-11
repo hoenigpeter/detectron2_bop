@@ -19,17 +19,17 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_lmo_random_texture_all_model"
+    output_dir = "./retinanet_lmo_random_texture_all_model"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Create a Detectron2 config
+    # Create a Detectron2 config for RetinaNet
     cfg = get_cfg()
-    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))
+    cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
 
     cfg.DATASETS.TRAIN = ("lmo_random_texture_all_pbr_train",)
     cfg.DATASETS.TEST = ("lmo_bop_test",)
     cfg.DATALOADER.NUM_WORKERS = 4  # Adjust according to your system setup
-    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")  # Pretrained weights
+    cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/retinanet_R_50_FPN_3x.yaml")  # Pretrained weights
     cfg.SOLVER.IMS_PER_BATCH = 4
     cfg.SOLVER.BASE_LR = 0.00025
 
@@ -39,14 +39,14 @@ if __name__ == "__main__":
     iterations_for_one_epoch = 50000 / single_iteration
 
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements
-    cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 8  # Adjust according to your dataset
+    cfg.MODEL.RETINANET.NUM_CLASSES = 8  # Adjust according to your dataset
+
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
-    cfg.SOLVER.CHECKPOINT_PERIOD = 20000  # Save a checkpoint every 100 iterations
+    cfg.SOLVER.CHECKPOINT_PERIOD = 30000  # Save a checkpoint every 100 iterations
 
     # Create the trainer and start training
     trainer = DefaultTrainer(cfg)
-    trainer.resume_or_load(resume=True)
+    trainer.resume_or_load(resume=False)
     trainer.train()
