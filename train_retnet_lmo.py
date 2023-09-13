@@ -4,9 +4,7 @@ import copy
 import detectron2
 from detectron2.engine import DefaultTrainer
 from detectron2.config import get_cfg
-from detectron2.data import DatasetCatalog, MetadataCatalog
-from detectron2.data.datasets import register_coco_instances
-from detectron2.data.datasets.builtin_meta import _get_builtin_metadata
+from detectron2.data import DatasetCatalog
 from detectron2.model_zoo import model_zoo
 
 if __name__ == "__main__":
@@ -17,12 +15,9 @@ if __name__ == "__main__":
 
     print("dataset catalog: ", DatasetCatalog.list())
 
-    # Create a Detectron2 config
-    # Add a directory to save the model checkpoints
     output_dir = "./retinanet_lmo_model"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Create a Detectron2 config for RetinaNet
     cfg = get_cfg()
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
 
@@ -41,12 +36,9 @@ if __name__ == "__main__":
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements
     cfg.MODEL.RETINANET.NUM_CLASSES = 8  # Adjust according to your dataset
 
-
-    # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
     cfg.SOLVER.CHECKPOINT_PERIOD = 30000  # Save a checkpoint every 100 iterations
 
-    # Create the trainer and start training
     trainer = DefaultTrainer(cfg)
     trainer.resume_or_load(resume=False)
     trainer.train()
