@@ -79,7 +79,7 @@ def do_train(args, cfg):
 
 
 def main(args):
-    cfg = LazyConfig.load(args.config_file)
+    cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
     print(cfg)
 
