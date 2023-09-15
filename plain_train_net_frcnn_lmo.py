@@ -1,59 +1,19 @@
-#!/usr/bin/env python
-# Copyright (c) Facebook, Inc. and its affiliates.
-"""
-Detectron2 training script with a plain training loop.
-
-This script reads a given config file and runs the training or evaluation.
-It is an entry point that is able to train standard models in detectron2.
-
-In order to let one script support training of many models,
-this script contains logic that are specific to these built-in models and therefore
-may not be suitable for your own project.
-For example, your research project perhaps only needs a single "evaluator".
-
-Therefore, we recommend you to use detectron2 as a library and take
-this file as an example of how to use the library.
-You may want to write your own script with your datasets and other customizations.
-
-Compared to "train_net.py", this script supports fewer default features.
-It also includes fewer abstraction, therefore is easier to add custom logic.
-"""
-
 import logging
 import os
-from collections import OrderedDict
 import torch
-from torch.nn.parallel import DistributedDataParallel
 
 import detectron2.utils.comm as comm
 from detectron2.checkpoint import DetectionCheckpointer, PeriodicCheckpointer
 from detectron2.config import get_cfg
-from detectron2.data import (
-    MetadataCatalog,
-    build_detection_test_loader,
-    build_detection_train_loader,
-)
-from detectron2.engine import default_argument_parser, default_setup, default_writers, launch
-from detectron2.evaluation import (
-    CityscapesInstanceEvaluator,
-    CityscapesSemSegEvaluator,
-    COCOEvaluator,
-    COCOPanopticEvaluator,
-    DatasetEvaluators,
-    LVISEvaluator,
-    PascalVOCDetectionEvaluator,
-    SemSegEvaluator,
-    inference_on_dataset,
-    print_csv_format,
-)
+from detectron2.data import build_detection_train_loader
+from detectron2.engine import default_writers
 from detectron2.modeling import build_model
 from detectron2.solver import build_lr_scheduler, build_optimizer
 from detectron2.utils.events import EventStorage
-from detectron2.data import DatasetCatalog, MetadataCatalog
+from detectron2.data import DatasetCatalog
 from detectron2.model_zoo import model_zoo
 from detectron2.data import DatasetMapper, build_detection_train_loader
 
-from detectron2.data import transforms as T
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -62,13 +22,7 @@ logger = logging.getLogger("detectron2")
 logging.basicConfig(level=logging.INFO)
 
 import imgaug.augmenters as iaa
-from imgaug.augmenters import (Sequential, SomeOf, OneOf, Sometimes, WithColorspace, WithChannels, Noop,
-                                           Lambda, AssertLambda, AssertShape, Scale, CropAndPad, Pad, Crop, Fliplr,
-                                           Flipud, Superpixels, ChangeColorspace, PerspectiveTransform, Grayscale,
-                                           GaussianBlur, AverageBlur, MedianBlur, Convolve, Sharpen, Emboss, EdgeDetect,
-                                           DirectedEdgeDetect, Add, AddElementwise, AdditiveGaussianNoise, Multiply,
-                                           MultiplyElementwise, Dropout, CoarseDropout, Invert, ContrastNormalization,
-                                           Affine, PiecewiseAffine, ElasticTransformation, pillike, LinearContrast)  # noqa
+from imgaug.augmenters import (Sometimes, GaussianBlur,Add,AdditiveGaussianNoise, Multiply,CoarseDropout,Invert,pillike)
 
 seq = iaa.Sequential([
     Sometimes(0.5, CoarseDropout( p=0.2, size_percent=0.05) ),

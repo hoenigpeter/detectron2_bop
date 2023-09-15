@@ -66,7 +66,7 @@ def color_aug(image_original):
 
     # plt.show()
 
-    #image = (image * 255.0 + 0.5).astype(np.uint8)
+    image = (image * 255.0 + 0.5).astype(np.uint8)
     return image_tensor
         
 def do_train(cfg, model, resume=False):
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)  # Adjust according to your requirements
     cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
-    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 30  # Adjust according to your dataset
+    cfg.MODEL.ROI_HEADS.NUM_CLASSES = 28  # Adjust according to your dataset
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints

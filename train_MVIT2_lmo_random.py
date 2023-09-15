@@ -88,17 +88,17 @@ def main(args):
     # register_coco_instances("lmo_bop_test_primesense", {}, "datasets/lmo/lmo_annotations_test.json", "datasets/lmo/test_primesense")
     # print("dataset catalog: ", DatasetCatalog.list())
 
-    from configs.lm_pbr import register_with_name_cfg
-    register_with_name_cfg("lmo_pbr_train")
+    from configs.lmo_random_texture_all_pbr import register_with_name_cfg
+    register_with_name_cfg("lmo_random_texture_all_pbr_train")
     from configs.lmo_bop_test import register_with_name_cfg
     register_with_name_cfg("lmo_bop_test")
 
     print("dataset catalog: ", DatasetCatalog.list())
 
-    output_dir = "./mvit2_lmo_output"
+    output_dir = "./mvit2_lmo_random_texture_output"
     os.makedirs(output_dir, exist_ok=True)
 
-    cfg.dataloader.train.dataset.names = "lmo_pbr_train"
+    cfg.dataloader.train.dataset.names = "lmo_random_texture_pbr_train"
     cfg.dataloader.test.dataset.names = "lmo_bop_test"
     cfg.dataloader.train.total_batch_size = 4
 
