@@ -24,8 +24,8 @@ if __name__ == "__main__":
     cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/retinanet_R_50_FPN_3x.yaml"))
 
     # Create a Detectron2 config
-    # Add a directory to save the model checkpoints
-    output_dir = "./retinanet_tless_model"
+    # Add a directory to save the retinanet_tless_model_with_aug checkpoints
+    output_dir = "./retinanet_tless_model_with_aug"
     model_path = output_dir + "/model_final.pth"
     cfg.MODEL.WEIGHTS = model_path
     #cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01  # Set the desired threshold for detection

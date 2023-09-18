@@ -25,6 +25,89 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 import os
 
+import imgaug.augmenters as iaa
+from imgaug.augmenters import (Sometimes, GaussianBlur,Add,AdditiveGaussianNoise, Multiply,CoarseDropout,Invert,pillike)
+
+
+seq = iaa.Sequential([
+    Sometimes(0.5, CoarseDropout( p=0.2, size_percent=0.05) ),
+    Sometimes(0.4, GaussianBlur((0., 3.))),
+    Sometimes(0.3, pillike.EnhanceSharpness(factor=(0., 50.))),
+    Sometimes(0.3, pillike.EnhanceContrast(factor=(0.2, 50.))),
+    Sometimes(0.5, pillike.EnhanceBrightness(factor=(0.1, 6.))),
+    Sometimes(0.3, pillike.EnhanceColor(factor=(0., 20.))),
+    Sometimes(0.5, Add((-25, 25), per_channel=0.3)),
+    Sometimes(0.3, Invert(0.2, per_channel=True)),
+    Sometimes(0.5, Multiply((0.6, 1.4), per_channel=0.5)),
+    Sometimes(0.5, Multiply((0.6, 1.4))),
+    Sometimes(0.1, AdditiveGaussianNoise(scale=10, per_channel=True)),
+    Sometimes(0.5, iaa.contrast.LinearContrast((0.5, 2.2), per_channel=0.3)),
+    ], random_order=True)
+
+def color_aug(image_original):
+    image = np.asarray(image_original, dtype=np.uint8).copy()
+    image = image.transpose(1, 2, 0)
+    #image_np = image.cpu().numpy()
+    image = seq(image=image)
+    image = image.transpose(2, 0, 1)
+    image_tensor = torch.from_numpy(image)
+
+    original_image = image_original.permute(1, 2, 0).numpy()
+    augmented_image = image_tensor.permute(1, 2, 0).numpy()
+
+    original_image = original_image[:, :, ::-1]
+    augmented_image = augmented_image[:, :, ::-1]
+
+    return image_tensor
+
+class CustomAMPTrainer(AMPTrainer):
+    def run_step(self):
+        """
+        Implement the AMP training logic.
+        """
+        assert self.model.training, "[AMPTrainer] model was changed to eval mode!"
+        assert torch.cuda.is_available(), "[AMPTrainer] CUDA is required for AMP training!"
+        from torch.cuda.amp import autocast
+
+        start = time.perf_counter()
+        data = next(self._data_loader_iter)
+        for d in data:
+            d['image'] = color_aug(d['image'])
+
+        data_time = time.perf_counter() - start
+
+        if self.zero_grad_before_forward:
+            self.optimizer.zero_grad()
+        with autocast(dtype=self.precision):
+            loss_dict = self.model(data)
+            if isinstance(loss_dict, torch.Tensor):
+                losses = loss_dict
+                loss_dict = {"total_loss": loss_dict}
+            else:
+                losses = sum(loss_dict.values())
+
+        if not self.zero_grad_before_forward:
+            self.optimizer.zero_grad()
+
+        self.grad_scaler.scale(losses).backward()
+
+        if self.log_grad_scaler:
+            storage = get_event_storage()
+            storage.put_scalar("[metric]grad_scaler", self.grad_scaler.get_scale())
+
+        self.after_backward()
+
+        if self.async_write_metrics:
+            # write metrics asynchronically
+            self.concurrent_executor.submit(
+                self._write_metrics, loss_dict, data_time, iter=self.iter
+            )
+        else:
+            self._write_metrics(loss_dict, data_time)
+
+        self.grad_scaler.step(self.optimizer)
+        self.grad_scaler.update()
+
 def do_test(cfg, model):
     if "evaluator" in cfg.dataloader:
         ret = inference_on_dataset(
@@ -46,6 +129,7 @@ def do_train(args, cfg):
     train_loader = instantiate(cfg.dataloader.train)
 
     model = create_ddp_model(model, **cfg.train.ddp)
+    print("amp trainer enableD: ", cfg.train.amp.enabled)
     trainer = (AMPTrainer if cfg.train.amp.enabled else SimpleTrainer)(model, train_loader, optim)
     checkpointer = DetectionCheckpointer(
         model,
@@ -93,7 +177,7 @@ def main(args):
     # from configs.lmo_bop_test import register_with_name_cfg
     # register_with_name_cfg("lmo_bop_test")
 
-    output_dir = "./mvit2_lmo_output"
+    output_dir = "./mvit2_lmo_with_aug_output"
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "lmo_pbr_train"

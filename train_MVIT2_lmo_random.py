@@ -16,6 +16,7 @@ from detectron2.evaluation import inference_on_dataset, print_csv_format
 from detectron2.utils import comm
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data import DatasetCatalog
+from detectron2.data import DatasetMapper, build_detection_train_loader
 
 logger = logging.getLogger("detectron2")
 
@@ -79,31 +80,36 @@ def do_train(args, cfg):
 
 
 def main(args):
-    cfg = LazyConfig.load(args.config_file)
+    cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
-    print(cfg)
 
     #LazyConfig.save(cfg, "tmp.yaml")
-    # register_coco_instances("lmo_pbr_train", {}, "datasets/lmo/lmo_annotations_train.json", "datasets/lmo/train_pbr")
-    # register_coco_instances("lmo_bop_test_primesense", {}, "datasets/lmo/lmo_annotations_test.json", "datasets/lmo/test_primesense")
-    # print("dataset catalog: ", DatasetCatalog.list())
+    register_coco_instances("lmo_random_texture_all_pbr_train", {}, "datasets/BOP_DATASETS/lmo_random_texture_all/lmo_random_texture_all_annotations_train.json", "datasets/BOP_DATASETS/lmo_random_texture_all/train_pbr")
+    #register_coco_instances("lmo_bop_test", {}, "datasets/lmo/lmo_annotations_test.json", "datasets/lmo/test_primesense")
+    #print("dataset catalog: ", DatasetCatalog.list())
 
-    from configs.lmo_random_texture_all_pbr import register_with_name_cfg
-    register_with_name_cfg("lmo_random_texture_all_pbr_train")
-    from configs.lmo_bop_test import register_with_name_cfg
-    register_with_name_cfg("lmo_bop_test")
-
-    print("dataset catalog: ", DatasetCatalog.list())
+    # from configs.lmo_random_texture_all_pbr import register_with_name_cfg
+    # register_with_name_cfg("lmo_random_texture_all_pbr_train")
+    # from configs.lmo_bop_test import register_with_name_cfg
+    # register_with_name_cfg("lmo_bop_test")
 
     output_dir = "./mvit2_lmo_random_texture_output"
     os.makedirs(output_dir, exist_ok=True)
 
-    cfg.dataloader.train.dataset.names = "lmo_random_texture_pbr_train"
-    cfg.dataloader.test.dataset.names = "lmo_bop_test"
+    cfg.dataloader.train.dataset.names = "lmo_random_texture_all_pbr_train"
+    #cfg.dataloader.test.dataset.names = "lmo_bop_test"
     cfg.dataloader.train.total_batch_size = 4
-
+    cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 8
-    cfg.OUTPUT_DIR = output_dir
+    #cfg.OUTPUT_DIR = output_dir
+
+    # print(cfg.dataloader.train.mapper.augmentations)
+    print(cfg)
+
+    print(cfg.dataloader.train.mapper.augmentations)
+
+    cfg.dataloader.train.mapper.augmentations = []
+    cfg.train.eval_period = 1000000
 
     epochs = 10 
 
