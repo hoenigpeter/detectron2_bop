@@ -209,7 +209,7 @@ def main(args):
     cfg.dataloader.test.mapper.augmentations = []
     cfg.train.eval_period = 1000000
 
-    epochs = 10 
+    epochs = 30 
 
     single_iteration = 1 * cfg.dataloader.train.total_batch_size
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
