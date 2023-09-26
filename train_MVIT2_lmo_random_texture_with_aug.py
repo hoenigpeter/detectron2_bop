@@ -76,8 +76,8 @@ class CustomSimpleTrainer(TrainerBase):
         If you want to do something with the data, you can wrap the dataloader.
         """
         data = next(self._data_loader_iter)
-        for d in data:
-            d['image'] = color_aug(d['image'])        
+        # for d in data:
+        #     d['image'] = color_aug(d['image'])        
         data_time = time.perf_counter() - start
 
         if self.zero_grad_before_forward:
@@ -183,8 +183,8 @@ def main(args):
 
     #LazyConfig.save(cfg, "tmp.yaml")
     register_coco_instances("lmo_random_texture_all_pbr_train", {}, "datasets/BOP_DATASETS/lmo_random_texture_all/lmo_random_texture_all_annotations_train.json", "datasets/BOP_DATASETS/lmo_random_texture_all/train_pbr")
-    #register_coco_instances("lmo_bop_test", {}, "datasets/lmo/lmo_annotations_test.json", "datasets/lmo/test_primesense")
-    #print("dataset catalog: ", DatasetCatalog.list())
+    register_coco_instances("lmo_bop_test", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_test.json", "datasets/BOP_DATASETS/lmo/test")
+    print("dataset catalog: ", DatasetCatalog.list())
 
     # from configs.lmo_random_texture_all_pbr import register_with_name_cfg
     # register_with_name_cfg("lmo_random_texture_all_pbr_train")
@@ -195,7 +195,7 @@ def main(args):
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "lmo_random_texture_all_pbr_train"
-    #cfg.dataloader.test.dataset.names = "lmo_bop_test"
+    cfg.dataloader.test.dataset.names = "lmo_bop_test"
     cfg.dataloader.train.total_batch_size = 4
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 8
@@ -206,8 +206,8 @@ def main(args):
 
     print(cfg.dataloader.train.mapper.augmentations)
 
-    cfg.dataloader.train.mapper.augmentations = []
-    cfg.train.eval_period = 1000000
+    # cfg.dataloader.train.mapper.augmentations = []
+    cfg.train.eval_period = 50000
 
     epochs = 30 
 
