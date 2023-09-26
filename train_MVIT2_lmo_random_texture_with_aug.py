@@ -143,8 +143,8 @@ def do_train(args, cfg):
 
     model = create_ddp_model(model, **cfg.train.ddp)
     print("amp trainer enableD: ", cfg.train.amp.enabled)
-    #trainer = (CustomAMPTrainer if cfg.train.amp.enabled else SimpleTrainer)(model, train_loader, optim)
-    trainer = SimpleTrainer(model, train_loader, optim)
+    trainer = (AMPTrainer if cfg.train.amp.enabled else SimpleTrainer)(model, train_loader, optim)
+    #trainer = SimpleTrainer(model, train_loader, optim)
     checkpointer = DetectionCheckpointer(
         model,
         cfg.train.output_dir,
@@ -207,7 +207,7 @@ def main(args):
     print(cfg.dataloader.train.mapper.augmentations)
 
     # cfg.dataloader.train.mapper.augmentations = []
-    cfg.train.eval_period = 50000
+    cfg.train.eval_period = 10000
 
     epochs = 30 
 
