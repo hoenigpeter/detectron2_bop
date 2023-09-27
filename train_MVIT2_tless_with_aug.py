@@ -25,14 +25,15 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 import os
-import time
-from detectron2.utils.events import get_event_storage
-from torch.nn.parallel import DataParallel, DistributedDataParallel
 
 import imgaug.augmenters as iaa
 from imgaug.augmenters import (Sometimes, GaussianBlur,Add,AdditiveGaussianNoise, Multiply,CoarseDropout,Invert,pillike)
 import torch
 import numpy as np
+import time
+from detectron2.utils.events import get_event_storage
+from torch.nn.parallel import DataParallel, DistributedDataParallel
+
 
 seq = iaa.Sequential([
     Sometimes(0.5, CoarseDropout( p=0.2, size_percent=0.05) ),
@@ -76,8 +77,8 @@ class CustomSimpleTrainer(TrainerBase):
         If you want to do something with the data, you can wrap the dataloader.
         """
         data = next(self._data_loader_iter)
-        # for d in data:
-        #     d['image'] = color_aug(d['image'])        
+        for d in data:
+            d['image'] = color_aug(d['image'])        
         data_time = time.perf_counter() - start
 
         if self.zero_grad_before_forward:
@@ -142,7 +143,6 @@ def do_train(args, cfg):
     train_loader = instantiate(cfg.dataloader.train)
 
     model = create_ddp_model(model, **cfg.train.ddp)
-    print("amp trainer enableD: ", cfg.train.amp.enabled)
     #trainer = (AMPTrainer if cfg.train.amp.enabled else SimpleTrainer)(model, train_loader, optim)
     trainer = SimpleTrainer(model, train_loader, optim)
     checkpointer = DetectionCheckpointer(
@@ -178,27 +178,20 @@ def do_train(args, cfg):
 
 
 def main(args):
-    cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
+    cfg = LazyConfig.load(args.config_file)
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
-    #LazyConfig.save(cfg, "tmp.yaml")
-    register_coco_instances("lmo_random_texture_all_pbr_train", {}, "datasets/BOP_DATASETS/lmo_random_texture_all/lmo_random_texture_all_annotations_train.json", "datasets/BOP_DATASETS/lmo_random_texture_all/train_pbr")
-    register_coco_instances("lmo_bop_test", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_test.json", "datasets/BOP_DATASETS/lmo/test")
-    print("dataset catalog: ", DatasetCatalog.list())
+    register_coco_instances("tless_pbr_train", {}, "datasets/tless/tless_annotations_train.json", "datasets/tless/train_pbr")
+    register_coco_instances("tless_bop_test_primesense", {}, "datasets/tless/tless_annotations_test.json", "datasets/tless/test_primesense")
 
-    # from configs.lmo_random_texture_all_pbr import register_with_name_cfg
-    # register_with_name_cfg("lmo_random_texture_all_pbr_train")
-    # from configs.lmo_bop_test import register_with_name_cfg
-    # register_with_name_cfg("lmo_bop_test")
-
-    output_dir = "./mvit2_lmo_random_texture_with_aug_output"
+    output_dir = "./mvit2_tless_with_aug_output"
     os.makedirs(output_dir, exist_ok=True)
 
-    cfg.dataloader.train.dataset.names = "lmo_random_texture_all_pbr_train"
-    cfg.dataloader.test.dataset.names = "lmo_bop_test"
+    cfg.dataloader.train.dataset.names = "tless_pbr_train"
+    cfg.dataloader.test.dataset.names = "tless_bop_test_primesense"
     cfg.dataloader.train.total_batch_size = 4
     cfg.train.output_dir = output_dir
-    cfg.model.roi_heads.num_classes = 8
+    cfg.model.roi_heads.num_classes = 30
 
     cfg.dataloader.train.mapper.augmentations = []
     cfg.dataloader.test.mapper.augmentations = []

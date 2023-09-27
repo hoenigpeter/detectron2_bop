@@ -143,8 +143,8 @@ def do_train(args, cfg):
     train_loader = instantiate(cfg.dataloader.train)
 
     model = create_ddp_model(model, **cfg.train.ddp)
-    trainer = (AMPTrainer if cfg.train.amp.enabled else SimpleTrainer)(model, train_loader, optim)
-    #trainer = SimpleTrainer(model, train_loader, optim)
+    #trainer = (AMPTrainer if cfg.train.amp.enabled else SimpleTrainer)(model, train_loader, optim)
+    trainer = SimpleTrainer(model, train_loader, optim)
     checkpointer = DetectionCheckpointer(
         model,
         cfg.train.output_dir,
@@ -181,15 +181,8 @@ def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
-    #LazyConfig.save(cfg, "tmp.yaml")
     register_coco_instances("lmo_pbr_train", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_train.json", "datasets/BOP_DATASETS/lmo/train_pbr")
     register_coco_instances("lmo_bop_test", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_test.json", "datasets/BOP_DATASETS/lmo/test")
-    print("dataset catalog: ", DatasetCatalog.list())
-
-    # from configs.lm_pbr import register_with_name_cfg
-    # register_with_name_cfg("lmo_pbr_train")
-    # from configs.lmo_bop_test import register_with_name_cfg
-    # register_with_name_cfg("lmo_bop_test")
 
     output_dir = "./mvit2_lmo_with_aug_output"
     os.makedirs(output_dir, exist_ok=True)
@@ -199,14 +192,9 @@ def main(args):
     cfg.dataloader.train.total_batch_size = 4
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 8
-    #cfg.OUTPUT_DIR = output_dir
 
-    # print(cfg.dataloader.train.mapper.augmentations)
-    print(cfg)
-
-
-    # cfg.dataloader.train.mapper.augmentations = []
-    # cfg.dataloader.test.mapper.augmentations = []
+    cfg.dataloader.train.mapper.augmentations = []
+    cfg.dataloader.test.mapper.augmentations = []
     cfg.train.eval_period = 10000
 
     epochs = 30 

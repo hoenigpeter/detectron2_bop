@@ -5,6 +5,7 @@ from detectron2.config import LazyConfig, instantiate
 from detectron2.engine import (
     AMPTrainer,
     SimpleTrainer,
+    TrainerBase,
     default_argument_parser,
     default_setup,
     default_writers,
@@ -24,6 +25,69 @@ import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
 
 import os
+
+import imgaug.augmenters as iaa
+from imgaug.augmenters import (Sometimes, GaussianBlur,Add,AdditiveGaussianNoise, Multiply,CoarseDropout,Invert,pillike)
+import torch
+import numpy as np
+import time
+from detectron2.utils.events import get_event_storage
+from torch.nn.parallel import DataParallel, DistributedDataParallel
+
+class CustomSimpleTrainer(TrainerBase):
+    def run_step(self):
+        """
+        Implement the standard training logic described above.
+        """
+        assert self.model.training, "[SimpleTrainer] model was changed to eval mode!"
+        start = time.perf_counter()
+        """
+        If you want to do something with the data, you can wrap the dataloader.
+        """
+        data = next(self._data_loader_iter)
+     
+        data_time = time.perf_counter() - start
+
+        if self.zero_grad_before_forward:
+            """
+            If you need to accumulate gradients or do something similar, you can
+            wrap the optimizer with your custom `zero_grad()` method.
+            """
+            self.optimizer.zero_grad()
+
+        """
+        If you want to do something with the losses, you can wrap the model.
+        """
+        loss_dict = self.model(data)
+        if isinstance(loss_dict, torch.Tensor):
+            losses = loss_dict
+            loss_dict = {"total_loss": loss_dict}
+        else:
+            losses = sum(loss_dict.values())
+        if not self.zero_grad_before_forward:
+            """
+            If you need to accumulate gradients or do something similar, you can
+            wrap the optimizer with your custom `zero_grad()` method.
+            """
+            self.optimizer.zero_grad()
+        losses.backward()
+
+        self.after_backward()
+
+        if self.async_write_metrics:
+            # write metrics asynchronically
+            self.concurrent_executor.submit(
+                self._write_metrics, loss_dict, data_time, iter=self.iter
+            )
+        else:
+            self._write_metrics(loss_dict, data_time)
+
+        """
+        If you need gradient clipping/scaling or other processing, you can
+        wrap the optimizer with your custom `step()` method. But it is
+        suboptimal as explained in https://arxiv.org/abs/2006.15704 Sec 3.2.4
+        """
+        self.optimizer.step()
 
 def do_test(cfg, model):
     if "evaluator" in cfg.dataloader:
@@ -83,15 +147,8 @@ def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
-    #LazyConfig.save(cfg, "tmp.yaml")
     register_coco_instances("lmo_random_texture_all_pbr_train", {}, "datasets/BOP_DATASETS/lmo_random_texture_all/lmo_random_texture_all_annotations_train.json", "datasets/BOP_DATASETS/lmo_random_texture_all/train_pbr")
     register_coco_instances("lmo_bop_test", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_test.json", "datasets/BOP_DATASETS/lmo/test")
-    #print("dataset catalog: ", DatasetCatalog.list())
-
-    # from configs.lmo_random_texture_all_pbr import register_with_name_cfg
-    # register_with_name_cfg("lmo_random_texture_all_pbr_train")
-    # from configs.lmo_bop_test import register_with_name_cfg
-    # register_with_name_cfg("lmo_bop_test")
 
     output_dir = "./mvit2_lmo_random_texture_output"
     os.makedirs(output_dir, exist_ok=True)
@@ -101,15 +158,10 @@ def main(args):
     cfg.dataloader.train.total_batch_size = 4
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 8
-    #cfg.OUTPUT_DIR = output_dir
-
-    # print(cfg.dataloader.train.mapper.augmentations)
-    print(cfg)
-
 
     cfg.dataloader.train.mapper.augmentations = []
     cfg.dataloader.test.mapper.augmentations = []
-    cfg.train.eval_period = 1000000
+    cfg.train.eval_period = 10000
 
     epochs = 30 
 
