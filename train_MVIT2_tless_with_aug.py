@@ -181,8 +181,8 @@ def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
-    register_coco_instances("tless_pbr_train", {}, "datasets/tless/tless_annotations_train.json", "datasets/tless/train_pbr")
-    register_coco_instances("tless_bop_test_primesense", {}, "datasets/tless/tless_annotations_test.json", "datasets/tless/test_primesense")
+    register_coco_instances("tless_pbr_train", {}, "datasets/BOP_DATASETS/tless/tless_annotations_train.json", "datasets/BOP_DATASETS/tless/train_pbr")
+    register_coco_instances("tless_bop_test_primesense", {}, "datasets/BOP_DATASETS/tless/tless_annotations_test.json", "datasets/BOP_DATASETS/tless/test_primesense")
 
     output_dir = "./mvit2_tless_with_aug_output"
     os.makedirs(output_dir, exist_ok=True)
