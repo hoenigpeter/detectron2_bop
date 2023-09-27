@@ -149,7 +149,6 @@ def main(args):
 
     register_coco_instances("lmo_pbr_train", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_train.json", "datasets/BOP_DATASETS/lmo/train_pbr")
     register_coco_instances("lmo_bop_test", {}, "datasets/BOP_DATASETS/lmo/lmo_annotations_test.json", "datasets/BOP_DATASETS/lmo/test")
-    print("dataset catalog: ", DatasetCatalog.list())
 
     output_dir = "./mvit2_lmo_output"
     os.makedirs(output_dir, exist_ok=True)
