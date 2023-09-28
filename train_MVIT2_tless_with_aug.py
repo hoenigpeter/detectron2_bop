@@ -150,6 +150,9 @@ def do_train(args, cfg):
         cfg.train.output_dir,
         trainer=trainer,
     )
+
+    print(cfg.train.checkpointer)
+
     trainer.register_hooks(
         [
             hooks.IterationTimer(),
@@ -158,6 +161,7 @@ def do_train(args, cfg):
             if comm.is_main_process()
             else None,
             hooks.EvalHook(cfg.train.eval_period, lambda: do_test(cfg, model)),
+            hooks.BestCheckpointer(eval_period=10000, checkpointer=checkpointer, val_metric="bbox/AP"),
             hooks.PeriodicWriter(
                 default_writers(cfg.train.output_dir, cfg.train.max_iter),
                 period=cfg.train.log_period,

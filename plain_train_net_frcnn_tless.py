@@ -42,7 +42,6 @@ seq = iaa.Sequential([
 def color_aug(image_original):
     image = np.asarray(image_original, dtype=np.uint8).copy()
     image = image.transpose(1, 2, 0)
-    #image_np = image.cpu().numpy()
     image = seq(image=image)
     image = image.transpose(2, 0, 1)
     image_tensor = torch.from_numpy(image)
@@ -53,21 +52,6 @@ def color_aug(image_original):
     original_image = original_image[:, :, ::-1]
     augmented_image = augmented_image[:, :, ::-1]
 
-    # # Display the original and augmented images side by side
-    # plt.figure(figsize=(10, 5))
-    # plt.subplot(1, 2, 1)
-    # plt.title("Original Image")
-    # plt.imshow(original_image)
-    # plt.axis('off')
-
-    # plt.subplot(1, 2, 2)
-    # plt.title("Augmented Image")
-    # plt.imshow(augmented_image)
-    # plt.axis('off')
-
-    # plt.show()
-
-    #image = (image * 255.0 + 0.5).astype(np.uint8)
     return image_tensor
         
 def do_train(cfg, model, resume=False):
