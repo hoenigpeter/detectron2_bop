@@ -15,6 +15,7 @@ from detectron2.engine import DefaultPredictor
 from detectron2.config import get_cfg
 from detectron2.data import DatasetCatalog, MetadataCatalog
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
+from evaluators.bop_evaluator import BOPEvaluator
 from detectron2.data import build_detection_test_loader
 from detectron2.data.datasets import register_coco_instances
 import argparse
@@ -64,7 +65,7 @@ def color_aug(image_original):
 
     return image_tensor
         
-def do_train(cfg, model, resume=False):
+def do_train(cfg, model, aug, resume=False):
     model.train()
     optimizer = build_optimizer(cfg, model)
     scheduler = build_lr_scheduler(cfg, optimizer)
@@ -72,6 +73,7 @@ def do_train(cfg, model, resume=False):
     checkpointer = DetectionCheckpointer(
         model, cfg.OUTPUT_DIR, optimizer=optimizer, scheduler=scheduler
     )
+
     start_iter = (
         checkpointer.resume_or_load(cfg.MODEL.WEIGHTS, resume=resume).get("iteration", -1) + 1
     )
@@ -89,8 +91,9 @@ def do_train(cfg, model, resume=False):
         for data, iteration in zip(data_loader, range(start_iter, max_iter)):
             storage.iter = iteration
 
-            for d in data:
-                d['image'] = color_aug(d['image'])
+            if aug:
+                for d in data:
+                    d['image'] = color_aug(d['image'])
 
             loss_dict = model(data)
             losses = sum(loss_dict.values())
@@ -126,8 +129,18 @@ def main(args):
     with open(args.dataset_config, 'r') as json_file:
         dataset_info = json.load(json_file)
         
-    register_coco_instances(dataset_info["train_dataset_name"], {}, dataset_info["train_annotations"], dataset_info["train_images_dir"])
-    register_coco_instances(dataset_info["test_dataset_name"], {}, dataset_info["test_annotations"], dataset_info["test_images_dir"])
+    if dataset_info["dataset"] not in ["itodd", "itodd_random_texture"]:
+        register_coco_instances(dataset_info["train_dataset_name"], {}, dataset_info["train_annotations"], dataset_info["train_images_dir"])
+        register_coco_instances(dataset_info["test_dataset_name"], {}, dataset_info["test_annotations"], dataset_info["test_images_dir"])
+    else:
+        if dataset_info["dataset"] == "itodd":
+            from configs.itodd_pbr import register_with_name_cfg
+            register_with_name_cfg("itodd_pbr_train")   
+        if dataset_info["dataset"] == "itodd_random_texture":
+            from configs.itodd_random_texture_pbr import register_with_name_cfg
+            register_with_name_cfg("itodd_random_texture_pbr_train")                         
+        from configs.itodd_bop_test import register_with_name_cfg
+        register_with_name_cfg("itodd_bop_test")
 
     output_dir = "./" + args.model_type + "_" + dataset_info["dataset"] + "_model"
 
@@ -173,13 +186,18 @@ def main(args):
         cfg.MODEL.WEIGHTS = model_path
 
         predictor = DefaultPredictor(cfg)
-        evaluator = COCOEvaluator(dataset_info["test_dataset_name"], cfg, False, output_dir=output_dir)
+
+        if dataset_info["dataset"] not in ["itodd", "itodd_random_texture"]: 
+            evaluator = COCOEvaluator(dataset_info["test_dataset_name"], cfg, False, output_dir=output_dir)
+        else:
+            evaluator = BOPEvaluator(dataset_info["test_dataset_name"], cfg, False, output_dir=output_dir)            
+
         val_loader = build_detection_test_loader(cfg, dataset_info["test_dataset_name"], mapper=DatasetMapper(cfg, is_train=False, augmentations=[]))
         metrics = inference_on_dataset(predictor.model, val_loader, evaluator)
         print(metrics)
     else:
         cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml")  # Pretrained weights
-        do_train(cfg, model, resume=False)
+        do_train(cfg, model, args.aug, resume=False)
 
 if __name__ == "__main__":
 

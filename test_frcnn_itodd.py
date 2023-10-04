@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # Create a Detectron2 config
     # Add a directory to save the model checkpoints
-    output_dir = "./frcnn_itodd_model_with_aug"
+    output_dir = "./frcnn_itodd_random_texture_model_with_aug"
     model_path = output_dir + "/model_final.pth"
     cfg.MODEL.WEIGHTS = model_path
     cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01  # Set the desired threshold for detection

@@ -180,7 +180,7 @@ def do_train(args, cfg):
 def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
-
+    print(cfg)
     register_coco_instances("tless_pbr_train", {}, "datasets/BOP_DATASETS/tless/tless_annotations_train.json", "datasets/BOP_DATASETS/tless/train_pbr")
     register_coco_instances("tless_bop_test_primesense", {}, "datasets/BOP_DATASETS/tless/tless_annotations_test.json", "datasets/BOP_DATASETS/tless/test_primesense")
 
@@ -192,7 +192,6 @@ def main(args):
     cfg.dataloader.train.total_batch_size = 4
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 30
-
     cfg.dataloader.train.mapper.augmentations = []
     cfg.dataloader.test.mapper.augmentations = []
     cfg.train.eval_period = 10000
