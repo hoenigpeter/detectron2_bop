@@ -195,18 +195,19 @@ def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
     print(cfg)
-    from configs.itodd_pbr import register_with_name_cfg
-    register_with_name_cfg("itodd_pbr_train")
-    from configs.itodd_bop_test import register_with_name_cfg
-    register_with_name_cfg("itodd_bop_test")
+
+    register_coco_instances("itodd_pbr_train", {}, "datasets/BOP_DATASETS/itodd/itodd_annotations_train.json", "datasets/BOP_DATASETS/itodd/train_pbr")
+    # from configs.itodd_bop_test import register_with_name_cfg
+    # register_with_name_cfg("itodd_bop_test")
+
     print("dataset catalog: ", DatasetCatalog.list())
 
     output_dir = "./mvit2_itodd_output"
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_pbr_train"
-    cfg.dataloader.test.dataset.names = "itodd_bop_test"
-    cfg.dataloader.train.total_batch_size = 4
+    cfg.dataloader.test.dataset.names = "itodd_pbr_train"
+    cfg.dataloader.train.total_batch_size = 3
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 28
     cfg.dataloader.train.mapper.augmentations = []
