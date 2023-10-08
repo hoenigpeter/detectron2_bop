@@ -28,6 +28,7 @@ from detectron2.engine import (
 )
 from detectron2.engine.defaults import create_ddp_model
 from detectron2.evaluation import inference_on_dataset, print_csv_format
+from detectron2.evaluation import COCOEvaluator
 from detectron2.utils import comm
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data import DatasetCatalog
@@ -48,6 +49,7 @@ import time
 from detectron2.utils.events import get_event_storage
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
+from evaluators.bop_evaluator import BOPEvaluator
 
 seq = iaa.Sequential([
     Sometimes(0.5, CoarseDropout( p=0.2, size_percent=0.05) ),
@@ -197,8 +199,10 @@ def main(args):
     print(cfg)
 
     register_coco_instances("itodd_pbr_train", {}, "datasets/BOP_DATASETS/itodd/itodd_annotations_train.json", "datasets/BOP_DATASETS/itodd/train_pbr")
-    # from configs.itodd_bop_test import register_with_name_cfg
-    # register_with_name_cfg("itodd_bop_test")
+    
+    # from configs.itodd_bop_val import register_with_name_cfg+
+    # register_with_name_cfg("itodd_bop_val")
+    # cfg.dataloader.test.dataset.names = "itodd_bop_val"
 
     print("dataset catalog: ", DatasetCatalog.list())
 
@@ -212,7 +216,7 @@ def main(args):
     cfg.model.roi_heads.num_classes = 28
     cfg.dataloader.train.mapper.augmentations = []
     cfg.dataloader.test.mapper.augmentations = []
-    cfg.train.eval_period = 1000000
+    cfg.train.eval_period = 10000
 
     epochs = 30 
 
@@ -224,12 +228,25 @@ def main(args):
     default_setup(cfg, args)
 
     if args.eval_only:
+        from configs.itodd_bop_val import register_with_name_cfg
+        register_with_name_cfg("itodd_bop_val")
+        cfg.dataloader.test.dataset.names = "itodd_bop_val"
+        #cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
+        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
+        cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
+
         model = instantiate(cfg.model)
         model.to(cfg.train.device)
         model = create_ddp_model(model)
         DetectionCheckpointer(model).load(cfg.train.init_checkpoint)
         print(do_test(cfg, model))
     else:
+        from configs.itodd_bop_val import register_with_name_cfg
+        register_with_name_cfg("itodd_bop_val")
+        cfg.dataloader.test.dataset.names = "itodd_bop_val"
+        #cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
+        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
+        cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
         do_train(args, cfg)
 
 
