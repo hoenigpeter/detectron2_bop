@@ -228,12 +228,12 @@ def main(args):
     default_setup(cfg, args)
 
     if args.eval_only:
-        from configs.itodd_bop_val import register_with_name_cfg
-        register_with_name_cfg("itodd_bop_val")
-        cfg.dataloader.test.dataset.names = "itodd_bop_val"
-        #cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
+        from configs.itodd_bop_test import register_with_name_cfg
+        register_with_name_cfg("itodd_bop_test")
+        cfg.dataloader.test.dataset.names = "itodd_bop_test"
+        cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
         #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
-        cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
+        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
 
         model = instantiate(cfg.model)
         model.to(cfg.train.device)

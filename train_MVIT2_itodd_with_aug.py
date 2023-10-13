@@ -28,6 +28,7 @@ from detectron2.engine import (
 )
 from detectron2.engine.defaults import create_ddp_model
 from detectron2.evaluation import inference_on_dataset, print_csv_format
+from detectron2.evaluation import COCOEvaluator
 from detectron2.utils import comm
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data import DatasetCatalog
@@ -48,6 +49,7 @@ import time
 from detectron2.utils.events import get_event_storage
 from torch.nn.parallel import DataParallel, DistributedDataParallel
 
+from evaluators.bop_evaluator import BOPEvaluator
 
 seq = iaa.Sequential([
     Sometimes(0.5, CoarseDropout( p=0.2, size_percent=0.05) ),
@@ -91,8 +93,8 @@ class CustomSimpleTrainer(TrainerBase):
         If you want to do something with the data, you can wrap the dataloader.
         """
         data = next(self._data_loader_iter)
-        # for d in data:
-        #     d['image'] = color_aug(d['image'])        
+        for d in data:
+            d['image'] = color_aug(d['image'])        
         data_time = time.perf_counter() - start
 
         if self.zero_grad_before_forward:
@@ -195,22 +197,26 @@ def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
     print(cfg)
-    #LazyConfig.save(cfg, "tmp.yaml")
-    register_coco_instances("itodd_random_texture_pbr_train", {}, "datasets/BOP_DATASETS/itodd_random_texture/itodd_random_texture_annotations_train.json", "datasets/BOP_DATASETS/itodd_random_texture/train_pbr")
-    #register_coco_instances("itodd_bop_test", {}, "datasets/itodd/itodd_annotations_test.json", "datasets/itodd/test_primesense")
+
+    register_coco_instances("itodd_pbr_train", {}, "datasets/BOP_DATASETS/itodd/itodd_annotations_train.json", "datasets/BOP_DATASETS/itodd/train_pbr")
+    
+    # from configs.itodd_bop_val import register_with_name_cfg+
+    # register_with_name_cfg("itodd_bop_val")
+    # cfg.dataloader.test.dataset.names = "itodd_bop_val"
+
     print("dataset catalog: ", DatasetCatalog.list())
 
-    output_dir = "./mvit2_itodd_random_texture_output"
+    output_dir = "./mvit2_itodd_with_aug_output"
     os.makedirs(output_dir, exist_ok=True)
 
-    cfg.dataloader.train.dataset.names = "itodd_random_texture_pbr_train"
-    cfg.dataloader.test.dataset.names = "itodd_random_texture_pbr_train"
-    cfg.dataloader.train.total_batch_size = 4
+    cfg.dataloader.train.dataset.names = "itodd_pbr_train"
+    cfg.dataloader.test.dataset.names = "itodd_pbr_train"
+    cfg.dataloader.train.total_batch_size = 3
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 28
     cfg.dataloader.train.mapper.augmentations = []
     cfg.dataloader.test.mapper.augmentations = []
-    cfg.train.eval_period = 1000000
+    cfg.train.eval_period = 10000
 
     epochs = 30 
 
@@ -222,12 +228,25 @@ def main(args):
     default_setup(cfg, args)
 
     if args.eval_only:
+        from configs.itodd_bop_test import register_with_name_cfg
+        register_with_name_cfg("itodd_bop_test")
+        cfg.dataloader.test.dataset.names = "itodd_bop_test"
+        cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
+        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
+        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
+
         model = instantiate(cfg.model)
         model.to(cfg.train.device)
         model = create_ddp_model(model)
         DetectionCheckpointer(model).load(cfg.train.init_checkpoint)
         print(do_test(cfg, model))
     else:
+        from configs.itodd_bop_val import register_with_name_cfg
+        register_with_name_cfg("itodd_bop_val")
+        cfg.dataloader.test.dataset.names = "itodd_bop_val"
+        #cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
+        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
+        cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
         do_train(args, cfg)
 
 
