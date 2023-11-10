@@ -142,7 +142,7 @@ def main(args):
         from configs.itodd_bop_test import register_with_name_cfg
         register_with_name_cfg("itodd_bop_test")
 
-    output_dir = "./" + args.model_type + "_" + dataset_info["dataset"] + "_model"
+    output_dir = "/hdd/detectron2_models_new/" + args.model_type + "_" + dataset_info["dataset"] + "_model"
 
     if args.aug:
          output_dir += "_with_aug"
