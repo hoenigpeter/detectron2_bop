@@ -1,0 +1,12 @@
+{
+    "dataset": "itodd_random_texture",
+    "train_annotations": "datasets/BOP_DATASETS/itodd_random_texture/itodd_random_texture_annotations_train.json",
+    "test_annotations": "datasets/BOP_DATASETS/itodd/itodd_annotations_test.json",
+    "train_images_dir": "datasets/BOP_DATASETS/itodd_random_texture/train_pbr",
+    "test_images_dir": "datasets/BOP_DATASETS/itodd/test",
+    "train_dataset_name": "itodd_random_texture_pbr_train",
+    "test_dataset_name": "itodd_bop_test",
+    "epochs": 30,
+    "num_classes": 28,
+    "batch_size": 4
+}

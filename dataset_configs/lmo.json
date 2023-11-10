@@ -1,0 +1,12 @@
+{
+    "dataset": "lmo",
+    "train_annotations": "datasets/BOP_DATASETS/lmo/lmo_annotations_train.json",
+    "test_annotations": "datasets/BOP_DATASETS/lmo/lmo_annotations_test.json",
+    "train_images_dir": "datasets/BOP_DATASETS/lmo/train_pbr",
+    "test_images_dir": "datasets/BOP_DATASETS/lmo/test",
+    "train_dataset_name": "lmo_pbr_train",
+    "test_dataset_name": "lmo_bop_test",
+    "epochs": 30,
+    "num_classes": 8,
+    "batch_size": 4
+}

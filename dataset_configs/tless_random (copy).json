@@ -1,0 +1,12 @@
+{
+    "dataset": "tless_random_texture",
+    "train_annotations": "datasets/BOP_DATASETS/tless_random_texture/tless_random_texture_annotations_train.json",
+    "test_annotations": "datasets/BOP_DATASETS/tless/tless_annotations_test.json",
+    "train_images_dir": "datasets/BOP_DATASETS/tless_random_texture/train_pbr",
+    "test_images_dir": "datasets/BOP_DATASETS/tless/test_primesense",
+    "train_dataset_name": "tless_random_texture_pbr_train",
+    "test_dataset_name": "tless_test_primesense",
+    "epochs": 30,
+    "num_classes": 30,
+    "batch_size": 4
+}
