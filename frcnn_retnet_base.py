@@ -182,7 +182,7 @@ def main(args):
     logger.info("Model:\n{}".format(model))
 
     if args.mode == "eval":
-        model_path = output_dir + "/model_final.pth"
+        model_path = output_dir + "/model_0029999.pth"
         cfg.MODEL.WEIGHTS = model_path
 
         predictor = DefaultPredictor(cfg)
