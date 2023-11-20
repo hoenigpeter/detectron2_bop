@@ -167,12 +167,14 @@ def main(args):
     iterations_for_one_epoch = iterations_for_one_epoch = 50000 / single_iteration
     cfg.SOLVER.MAX_ITER = int(iterations_for_one_epoch * epochs)
 
+    print(cfg.MODEL)
     if args.model_type == "frcnn":
         cfg.MODEL.ROI_HEADS.NUM_CLASSES = dataset_info["num_classes"]
         cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 128
         cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01
     else:
         cfg.MODEL.RETINANET.NUM_CLASSES = dataset_info["num_classes"]
+        cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.01
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
@@ -182,7 +184,7 @@ def main(args):
     logger.info("Model:\n{}".format(model))
 
     if args.mode == "eval":
-        model_path = output_dir + "/model_0029999.pth"
+        model_path = output_dir + "/model_final.pth"
         cfg.MODEL.WEIGHTS = model_path
 
         predictor = DefaultPredictor(cfg)

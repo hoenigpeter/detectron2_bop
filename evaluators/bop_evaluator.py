@@ -46,10 +46,6 @@ class BOPEvaluator(COCOEvaluator):
         Returns:
             list[dict]: list of modified json annotations in COCO format.
         """
-
-        print(img_id)
-        print(scene_im_id)
-
         num_instance = len(instances)
         if num_instance == 0:
             return []
@@ -59,22 +55,6 @@ class BOPEvaluator(COCOEvaluator):
         boxes = boxes.tolist()
         scores = instances.scores.tolist()
         classes = instances.pred_classes.tolist()
-
-        #has_mask = instances.has("pred_masks")
-        has_mask = False
-        if has_mask:
-            # Use RLE to encode the masks, because they are too large and take memory
-            # since this evaluator stores outputs of the entire dataset
-            rles = [
-                mask_utils.encode(np.array(mask[:, :, None], order="F", dtype="uint8"))[0]
-                for mask in instances.pred_masks
-            ]
-            for rle in rles:
-                rle["counts"] = rle["counts"].decode("utf-8")
-
-        has_keypoints = instances.has("pred_keypoints")
-        if has_keypoints:
-            keypoints = instances.pred_keypoints
 
         results = []
         for k in range(num_instance):
@@ -88,19 +68,5 @@ class BOPEvaluator(COCOEvaluator):
                 "score": scores[k],
                 "time": 0.2,
             }
-            if has_mask:
-                # Modify the mask format here (example: convert to grayscale)
-                modified_mask = np.mean(instances.pred_masks[k].numpy(), axis=2, keepdims=True)
-                rle = mask_utils.encode(np.array(modified_mask, order="F", dtype="uint8"))[0]
-                rle["counts"] = rle["counts"].decode("utf-8")
-                result["segmentation"] = rle
-            if has_keypoints:
-                # In COCO annotations,
-                # keypoints coordinates are pixel indices.
-                # However, our predictions are floating-point coordinates.
-                # Therefore, we subtract 0.5 to be consistent with the annotation format.
-                # This is the inverse of data loading logic in `datasets/coco.py`.
-                keypoints[k][:, :2] -= 0.5
-                result["keypoints"] = keypoints[k].flatten().tolist()
             results.append(result)
         return results

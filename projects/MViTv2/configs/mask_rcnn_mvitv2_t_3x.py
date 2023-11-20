@@ -29,11 +29,11 @@ model.backbone.in_features = "${.bottom_up.out_features}"
 
 # Initialization and trainer settings
 train = model_zoo.get_config("common/train.py").train
-train.amp.enabled = True
+train.amp.enabled = False
 train.ddp.fp16_compression = True
 train.init_checkpoint = "detectron2://ImageNetPretrained/mvitv2/MViTv2_T_in1k.pyth"
 
-dataloader.train.total_batch_size = 64
+dataloader.train.total_batch_size = 4
 
 # 36 epochs
 train.max_iter = 67500

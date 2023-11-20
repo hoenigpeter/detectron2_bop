@@ -178,7 +178,7 @@ def do_train(args, cfg):
 
 
 def main(args):
-    cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
+    cfg = LazyConfig.load("projects/MViTv2/configs/mask_rcnn_mvitv2_t_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
 
     register_coco_instances("tless_random_texture_pbr_train", {}, "datasets/BOP_DATASETS/tless_random_texture/tless_random_texture_annotations_train.json", "datasets/BOP_DATASETS/tless_random_texture/train_pbr")

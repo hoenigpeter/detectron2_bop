@@ -1,17 +1,3 @@
-#!/usr/bin/env python
-# Copyright (c) Facebook, Inc. and its affiliates.
-"""
-Training script using the new "LazyConfig" python config files.
-
-This scripts reads a given python config file and runs the training or evaluation.
-It can be used to train any models or dataset as long as they can be
-instantiated by the recursive construction defined in the given config file.
-
-Besides lazy construction of models, dataloader, etc., this scripts expects a
-few common configuration parameters currently defined in "configs/common/train.py".
-To add more complicated training logic, you can easily add other configs
-in the config file and implement a new train_net.py to handle them.
-"""
 import logging
 
 from detectron2.checkpoint import DetectionCheckpointer
@@ -28,7 +14,8 @@ from detectron2.engine import (
 )
 from detectron2.engine.defaults import create_ddp_model
 from detectron2.evaluation import inference_on_dataset, print_csv_format
-from detectron2.evaluation import COCOEvaluator
+#from detectron2.evaluation import COCOEvaluator
+from evaluators.coco_evaluator import CustomCOCOEvaluator
 from detectron2.utils import comm
 from detectron2.data.datasets import register_coco_instances
 from detectron2.data import DatasetCatalog
@@ -196,21 +183,14 @@ def do_train(args, cfg):
 def main(args):
     cfg = LazyConfig.load("projects/MViTv2/configs/cascade_mask_rcnn_mvitv2_s_3x.py")
     cfg = LazyConfig.apply_overrides(cfg, args.opts)
-    print(cfg)
 
     register_coco_instances("itodd_random_texture_pbr_train", {}, "datasets/BOP_DATASETS/itodd_random_texture/itodd_random_texture_annotations_train.json", "datasets/BOP_DATASETS/itodd_random_texture/train_pbr")
-    
-    # from configs.itodd_bop_val import register_with_name_cfg+
-    # register_with_name_cfg("itodd_bop_val")
-    # cfg.dataloader.test.dataset.names = "itodd_bop_val"
 
-    print("dataset catalog: ", DatasetCatalog.list())
-
-    output_dir = "./mvit2_itodd_random_texture_output"
+    output_dir = "/hdd/detectron2_models_new/mvit2_itodd_random_texture_output"
     os.makedirs(output_dir, exist_ok=True)
 
     cfg.dataloader.train.dataset.names = "itodd_random_texture_pbr_train"
-    cfg.dataloader.test.dataset.names = "itodd_pbr_train"
+    cfg.dataloader.test.dataset.names = "itodd_random_texture_pbr_train"
     cfg.dataloader.train.total_batch_size = 3
     cfg.train.output_dir = output_dir
     cfg.model.roi_heads.num_classes = 28
@@ -232,9 +212,7 @@ def main(args):
         register_with_name_cfg("itodd_bop_test")
         cfg.dataloader.test.dataset.names = "itodd_bop_test"
         cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
-        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
-        #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
-
+        cfg.train.init_checkpoint = output_dir + "/model_0099999.pth"
         model = instantiate(cfg.model)
         model.to(cfg.train.device)
         model = create_ddp_model(model)
@@ -246,9 +224,8 @@ def main(args):
         cfg.dataloader.test.dataset.names = "itodd_bop_val"
         #cfg.dataloader.evaluator = BOPEvaluator("itodd_bop_test", cfg, False, output_dir=output_dir)
         #cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", cfg, False, output_dir=output_dir)
-        cfg.dataloader.evaluator = COCOEvaluator("itodd_bop_val", output_dir=output_dir)
+        cfg.dataloader.evaluator = CustomCOCOEvaluator("itodd_bop_val", output_dir=output_dir)
         do_train(args, cfg)
-
 
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
