@@ -45,3 +45,5 @@ events.out.tfevents*
 /_archive
 /.cache
 /lib
+
+/mvit2_tless_random_texture_with_aug_v2_output
