@@ -144,7 +144,7 @@ def main(args):
         from configs.itodd_bop_test import register_with_name_cfg
         register_with_name_cfg("itodd_bop_test")
 
-    output_dir = "/hdd/detectron2_models_new/" + args.model_type + "_" + dataset_info["dataset"] + "_model_p_0.4"
+    output_dir = "./detectron2_models/" + args.model_type + "_" + dataset_info["dataset"] + "_model_p_0.4"
 
     if args.aug:
          output_dir += "_with_aug"
@@ -180,7 +180,7 @@ def main(args):
 
     # Set the checkpoint saving options
     cfg.OUTPUT_DIR = output_dir  # Directory to save the checkpoints
-    cfg.SOLVER.CHECKPOINT_PERIOD = 10000  # Save a checkpoint every 100 iterations
+    cfg.SOLVER.CHECKPOINT_PERIOD = 30000  # Save a checkpoint every 100 iterations
     
     model = build_model(cfg)
     logger.info("Model:\n{}".format(model))
